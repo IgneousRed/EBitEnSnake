@@ -5,7 +5,6 @@ import (
 	"math"
 
 	eb "github.com/IgneousRed/EBitEngine"
-	ebitengine "github.com/IgneousRed/EBitEngine"
 	m "github.com/IgneousRed/gomisc"
 	ebit "github.com/hajimehoshi/ebiten/v2"
 )
