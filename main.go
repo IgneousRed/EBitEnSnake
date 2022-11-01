@@ -6,10 +6,10 @@ import (
 
 	eb "github.com/IgneousRed/EBitEngine"
 	m "github.com/IgneousRed/gomisc"
-	ebit "github.com/hajimehoshi/ebiten/v2"
+	ebt "github.com/hajimehoshi/ebiten/v2"
 )
 
-var WindowSize = m.Vec2I(800, 600)
+var windowSize = m.Vec2I(800, 600)
 
 type direction int
 
@@ -25,7 +25,7 @@ func (d direction) opposite() direction {
 	return (d + 2) % direction(dCount)
 }
 
-type Game struct {
+type game struct {
 	rng       m.PCG32
 	tileCount m.Vec[int]
 	tileSize  m.Vec[float32]
@@ -38,19 +38,19 @@ type Game struct {
 	tick      int
 }
 
-func (g *Game) moveHead(dir direction) m.Vec[int] {
+func (g *game) moveHead(dir direction) m.Vec[int] {
 	ang := float32(dir) * math.Pi / 2.
 	return g.head.Add(m.Vec2F(m.Cos(ang), m.Sin(ang)).RoundI()).Wrap(g.tileCount)
 }
-func (g *Game) RandomPoint() m.Vec[int] {
+func (g *game) randomPoint() m.Vec[int] {
 	return m.Vec2I(g.rng.Range(g.tileCount[0]), g.rng.Range(g.tileCount[1]))
 }
-func (g *Game) taken(point m.Vec[int]) *bool {
+func (g *game) taken(point m.Vec[int]) *bool {
 	return &g.tileTaken[point[0]][point[1]]
 }
-func (g *Game) PlaceFood() {
+func (g *game) placeFood() {
 	for {
-		p := g.RandomPoint()
+		p := g.randomPoint()
 		if !*g.taken(p) {
 			*g.taken(p) = true
 			g.food = p
@@ -58,26 +58,26 @@ func (g *Game) PlaceFood() {
 		}
 	}
 }
-func GameNew() Game {
-	g := Game{}
+func gameNew() game {
+	g := game{}
 	g.rng = m.PCG32Init()
 	g.tileCount = m.Vec2I(16, 12)
-	g.tileSize = WindowSize.Float32().Div(g.tileCount.Float32())
+	g.tileSize = windowSize.Float32().Div(g.tileCount.Float32())
 	g.tileTaken = m.Make2[bool](g.tileCount[0], g.tileCount[1])
 	g.dir = direction(g.rng.Range(4))
-	g.head = g.RandomPoint()
+	g.head = g.randomPoint()
 	g.body = append(g.body, g.moveHead(g.dir.opposite()))
-	g.PlaceFood()
+	g.placeFood()
 	return g
 }
-func (g *Game) Update() error {
+func (g *game) Update() error {
 	// Direction
 	eb.KeysUpdate()
 	dirs := []bool{
-		eb.KeysDown(ebit.KeyArrowRight, ebit.KeyD),
-		eb.KeysDown(ebit.KeyArrowUp, ebit.KeyW),
-		eb.KeysDown(ebit.KeyArrowLeft, ebit.KeyA),
-		eb.KeysDown(ebit.KeyArrowDown, ebit.KeyS),
+		eb.KeysDown(ebt.KeyArrowRight, ebt.KeyD),
+		eb.KeysDown(ebt.KeyArrowUp, ebt.KeyW),
+		eb.KeysDown(ebt.KeyArrowLeft, ebt.KeyA),
+		eb.KeysDown(ebt.KeyArrowDown, ebt.KeyS),
 	}
 	if m.CountTrue(dirs) == 1 {
 		newDir := direction(m.FirstTrueIndex(dirs))
@@ -110,27 +110,27 @@ func (g *Game) Update() error {
 	if newHead.Equals(g.food) {
 		g.body = append(g.body, g.head)
 		g.head = newHead
-		g.PlaceFood()
+		g.placeFood()
 		return nil
 	}
 	fmt.Println("Scored", len(g.body)-1)
-	*g = GameNew()
+	*g = gameNew()
 	return nil
 }
-func (g *Game) drawTile(scr *ebit.Image, p m.Vec[int], col eb.Color) {
+func (g *game) drawTile(scr *ebt.Image, p m.Vec[int], col eb.Color) {
 	eb.DrawRectangleF(scr, g.tileSize.Mul(p.Float32()), g.tileSize, col)
 }
-func (g *Game) Draw(scr *ebit.Image) {
+func (g *game) Draw(scr *ebt.Image) {
 	g.drawTile(scr, g.head, eb.Red)
 	for _, b := range g.body {
 		g.drawTile(scr, b, eb.Green)
 	}
 	g.drawTile(scr, g.food, eb.Blue)
 }
-func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	return WindowSize[0], WindowSize[1]
+func (g *game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
+	return windowSize[0], windowSize[1]
 }
 func main() {
-	g := GameNew()
-	eb.InitGame("Snake", WindowSize, &g)
+	g := gameNew()
+	eb.InitGame("Snake", windowSize, &g)
 }
