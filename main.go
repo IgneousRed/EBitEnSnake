@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math"
 
-	eb "github.com/IgneousRed/EBitEngine"
+	eb "github.com/IgneousRed/EBitEn"
 	m "github.com/IgneousRed/gomisc"
 	ebt "github.com/hajimehoshi/ebiten/v2"
 )
@@ -70,9 +70,8 @@ func gameNew() game {
 	g.placeFood()
 	return g
 }
-func (g *game) Update() error {
+func (g *game) Update() {
 	// Direction
-	eb.KeysUpdate()
 	dirs := []bool{
 		eb.KeysDown(ebt.KeyArrowRight, ebt.KeyD),
 		eb.KeysDown(ebt.KeyArrowUp, ebt.KeyW),
@@ -91,7 +90,7 @@ func (g *game) Update() error {
 	// Step
 	g.tick++
 	if g.tick < 10 {
-		return nil
+		return
 	}
 	g.tick = 0
 	if d, err := g.moves.Pop(); err == nil {
@@ -105,30 +104,26 @@ func (g *game) Update() error {
 		copy(g.body[0:lastIndex], g.body[1:len(g.body)])
 		g.body[lastIndex] = g.head
 		g.head = newHead
-		return nil
+		return
 	}
 	if newHead.Equals(g.food) {
 		g.body = append(g.body, g.head)
 		g.head = newHead
 		g.placeFood()
-		return nil
+		return
 	}
 	fmt.Println("Scored", len(g.body)-1)
 	*g = gameNew()
-	return nil
 }
-func (g *game) drawTile(scr *ebt.Image, p m.Vec[int], col eb.Color) {
-	eb.DrawRectangleF(scr, g.tileSize.Mul(p.Float32()), g.tileSize, col)
+func (g *game) drawTile(p m.Vec[int], col eb.Color) {
+	eb.DrawRectangleF(g.tileSize.Mul(p.Float32()), g.tileSize, col)
 }
-func (g *game) Draw(scr *ebt.Image) {
-	g.drawTile(scr, g.head, eb.Red)
+func (g *game) Draw() {
+	g.drawTile(g.head, eb.Red)
 	for _, b := range g.body {
-		g.drawTile(scr, b, eb.Green)
+		g.drawTile(b, eb.Green)
 	}
-	g.drawTile(scr, g.food, eb.Blue)
-}
-func (g *game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	return windowSize[0], windowSize[1]
+	g.drawTile(g.food, eb.Blue)
 }
 func main() {
 	g := gameNew()
