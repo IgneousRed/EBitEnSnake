@@ -10,6 +10,8 @@ import (
 )
 
 var windowSize = m.Vec2I(800, 600)
+var tileCount = m.Vec2I(16, 12)
+var tileSize = windowSize.Float32().Div(tileCount.Float32())
 
 type direction int
 
@@ -27,8 +29,6 @@ func (d direction) opposite() direction {
 
 type game struct {
 	rng       m.PCG32
-	tileCount m.Vec[int]
-	tileSize  m.Vec[float32]
 	tileTaken [][]bool
 	dir       direction
 	head      m.Vec[int]
@@ -40,10 +40,10 @@ type game struct {
 
 func (g *game) moveHead(dir direction) m.Vec[int] {
 	ang := float32(dir) * math.Pi / 2.
-	return g.head.Add(m.Vec2F(m.Cos(ang), m.Sin(ang)).RoundI()).Wrap(g.tileCount)
+	return g.head.Add(m.Vec2F(m.Cos(ang), m.Sin(ang)).RoundI()).Wrap(tileCount)
 }
 func (g *game) randomPoint() m.Vec[int] {
-	return m.Vec2I(g.rng.Range(g.tileCount[0]), g.rng.Range(g.tileCount[1]))
+	return m.Vec2I(g.rng.Range(tileCount[0]), g.rng.Range(tileCount[1]))
 }
 func (g *game) taken(point m.Vec[int]) *bool {
 	return &g.tileTaken[point[0]][point[1]]
@@ -61,9 +61,7 @@ func (g *game) placeFood() {
 func gameNew() game {
 	g := game{}
 	g.rng = m.PCG32Init()
-	g.tileCount = m.Vec2I(16, 12)
-	g.tileSize = windowSize.Float32().Div(g.tileCount.Float32())
-	g.tileTaken = m.Make2[bool](g.tileCount[0], g.tileCount[1])
+	g.tileTaken = m.Make2[bool](tileCount[0], tileCount[1])
 	g.dir = direction(g.rng.Range(4))
 	g.head = g.randomPoint()
 	g.body = append(g.body, g.moveHead(g.dir.opposite()))
@@ -116,7 +114,7 @@ func (g *game) Update() {
 	*g = gameNew()
 }
 func (g *game) drawTile(p m.Vec[int], col eb.Color) {
-	eb.DrawRectangleF(g.tileSize.Mul(p.Float32()), g.tileSize, col)
+	eb.DrawRectangleF(tileSize.Mul(p.Float32()), tileSize, col)
 }
 func (g *game) Draw() {
 	g.drawTile(g.head, eb.Red)
