@@ -11,7 +11,7 @@ import (
 
 var windowSize = m.Vec2I(800, 600)
 var tileCount = m.Vec2I(16, 12)
-var tileSize = windowSize.Float32().Div(tileCount.Float32())
+var tileSize = windowSize.Float64().Div(tileCount.Float64())
 
 type direction int
 
@@ -39,7 +39,7 @@ type game struct {
 }
 
 func (g *game) moveHead(dir direction) m.Vec[int] {
-	ang := float32(dir) * math.Pi / 2.
+	ang := float64(dir) * math.Pi / 2.
 	return g.head.Add(m.Vec2F(m.Cos(ang), m.Sin(ang)).RoundI()).Wrap(tileCount)
 }
 func (g *game) randomPoint() m.Vec[int] {
@@ -114,7 +114,7 @@ func (g *game) Update() {
 	*g = gameNew()
 }
 func (g *game) drawTile(p m.Vec[int], col eb.Color) {
-	eb.DrawRectangleF(tileSize.Mul(p.Float32()), tileSize, col)
+	eb.DrawRectangleF(tileSize.Mul(p.Float64()), tileSize, col)
 }
 func (g *game) Draw() {
 	g.drawTile(g.head, eb.Red)
