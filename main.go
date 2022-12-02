@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math"
 
-	eb "github.com/IgneousRed/EBitEn"
+	et "github.com/IgneousRed/EduTen"
 	m "github.com/IgneousRed/gomisc"
 	ebt "github.com/hajimehoshi/ebiten/v2"
 )
@@ -71,10 +71,10 @@ func gameNew() game {
 func (g *game) Update() {
 	// Direction
 	dirs := []bool{
-		eb.KeysDown(ebt.KeyArrowRight, ebt.KeyD),
-		eb.KeysDown(ebt.KeyArrowUp, ebt.KeyW),
-		eb.KeysDown(ebt.KeyArrowLeft, ebt.KeyA),
-		eb.KeysDown(ebt.KeyArrowDown, ebt.KeyS),
+		et.KeysDown(ebt.KeyArrowRight, ebt.KeyD),
+		et.KeysDown(ebt.KeyArrowUp, ebt.KeyW),
+		et.KeysDown(ebt.KeyArrowLeft, ebt.KeyA),
+		et.KeysDown(ebt.KeyArrowDown, ebt.KeyS),
 	}
 	if m.CountTrue(dirs) == 1 {
 		newDir := direction(m.FirstTrueIndex(dirs))
@@ -113,17 +113,17 @@ func (g *game) Update() {
 	fmt.Println("Scored", len(g.body)-1)
 	*g = gameNew()
 }
-func (g *game) drawTile(p m.Vec[int], col eb.Color) {
-	eb.DrawRectangleF(tileSize.Mul(p.Float64()), tileSize, col)
+func (g *game) drawTile(p m.Vec[int], col et.Color) {
+	et.DrawRectangleF(tileSize.Mul(p.Float64()), tileSize, col)
 }
 func (g *game) Draw() {
-	g.drawTile(g.head, eb.Red)
+	g.drawTile(g.head, et.Red)
 	for _, b := range g.body {
-		g.drawTile(b, eb.Green)
+		g.drawTile(b, et.Green)
 	}
-	g.drawTile(g.food, eb.Blue)
+	g.drawTile(g.food, et.Blue)
 }
 func main() {
 	g := gameNew()
-	eb.InitGame("Snake", windowSize, &g)
+	et.InitGame("Snake", windowSize, &g)
 }
