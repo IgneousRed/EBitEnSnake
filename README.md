@@ -1,2 +1,2 @@
-# EBitEnSnake
-A simple implementaion of the snake game in EBitEngine
+# EduTenSnake
+A simple implementaion of the snake game in EduTen
