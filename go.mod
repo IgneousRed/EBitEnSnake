@@ -1,4 +1,4 @@
-module EduTenEnSnake
+module github.com/IgneousRed/EduTenEnSnake
 
 go 1.19
 
